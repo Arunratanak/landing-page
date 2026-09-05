@@ -7,7 +7,6 @@ export default function Footer() {
         <div>
           <p>Created by me:  </p>
           <p className="font-bold">Prak Arunratanak </p>
-          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSmr4SQSRDHlhxIYFc-P_b6kIdSoRlcQd8xq_yfnDTZaw&s=10" className="w-20 pl-2"/>
         </div>
         </div>
         <a className="link link-hover">Contact</a>

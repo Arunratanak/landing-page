@@ -1,65 +1,70 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./index.css";
 import Header from "./Components/Header.jsx";
-import Hero from "./Components/Hero.jsx";
-import Food from "./Components/Food.jsx";
-import Footer from "./Components/Footer.jsx";
+import Footer from "./Components/Footer.jsx"
+import AppRoutes from "./Components/AppRoutes.jsx";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "./context/ThemeProvider.jsx";
 
 function App() {
-  const [cartCount, setCartCount] = useState(0);
-  const [cartTotal, setCartTotal] = useState(0);
+  const [cartItems, setCartItems] = useState([]);
+  const [recipes, setRecipes] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const handleAddToCart = (price) => {
-    setCartCount((count) => count + 1);
-    setCartTotal((total) => total + Number(price));
-  };
+  useEffect(() => {
+    fetch("https://dummyjson.com/recipes?limit=30")
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Unable to load recipes.");
+        }
+        return response.json();
+      })
+      .then((data) => setRecipes(data.recipes ?? []))
+      .catch((requestError) => setError(requestError.message))
+      .finally(() => setIsLoading(false));
+  }, []);
 
-  const handleScroll = (sectionId) => {
-    if (sectionId === "food-hub") {
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-      return;
-    }
+  const handleAddToCart = (item) => {
+    setCartItems((currentItems) => {
+      const existingItem = currentItems.find((cartItem) => cartItem.id === item.id);
 
-    const section = document.getElementById(sectionId);
-    const navigation = document.querySelector("nav");
+      if (existingItem) {
+        return currentItems.map((cartItem) =>
+          cartItem.id === item.id
+            ? { ...cartItem, quantity: cartItem.quantity + 1 }
+            : cartItem,
+        );
+      }
 
-    if (section) {
-      const navigationHeight = navigation?.getBoundingClientRect().height ?? 0;
-      const sectionTop = section.getBoundingClientRect().top + window.scrollY;
-
-      window.scrollTo({
-        top: sectionTop - navigationHeight - 8,
-        behavior: "smooth",
-      });
-    }
+      return [...currentItems, { ...item, quantity: 1 }];
+    });
   };
 
   return (
-    <main className="pt-40 lg:pt-28">
-      <div>
+    <ThemeProvider>
+      <BrowserRouter>
         <Header
-          onScrollClick={handleScroll}
-          cartCount={cartCount}
-          cartTotal={cartTotal}
+          cartItems={cartItems}
+          onUpdateCart={setCartItems}
         />
-      </div>
-
-      <div>
-        <Hero></Hero>
-      </div>
-
-      <div>
-        <Food onAddToCart={handleAddToCart} />
-      </div>
-
-      <div>
-        <Footer></Footer>
-      </div>
-    </main>
+        <Routes>
+          <Route
+            path="*"
+            element={
+              <AppRoutes
+                recipes={recipes}
+                isLoading={isLoading}
+                error={error}
+                onAddToCart={handleAddToCart}
+              />
+            }
+          />
+        </Routes>
+        <Footer />
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 
-export default App;
+export default App

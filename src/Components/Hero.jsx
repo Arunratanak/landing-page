@@ -2,7 +2,7 @@
 
 function Hero() {
   return (
-    <div className="relative w-full overflow-hidden rounded-xl">
+    <div className="relative w-full overflow-hidden rounded-xl mb-8 mt-8">
       <div className="carousel w-full h-100 flex overflow-x-auto snap-x snap-mandatory">
         <div id="slide1" className="carousel-item relative w-full scroll-mt-40">
           <img

@@ -1,41 +1,47 @@
-function Header({ onScrollClick, cartCount, cartTotal }) {
+import { Link } from "react-router-dom";
+import { useState } from "react";
+import ViewCart from "./viewCart.jsx";
+import { useTheme } from "../context/useTheme.jsx";
+
+function Header({ cartItems, onUpdateCart }) {
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
+  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const cartTotal = cartItems.reduce(
+    (sum, item) => sum + Number(item.price) * item.quantity,
+    0,
+  );
   return (
-    <nav className="fixed inset-x-0 top-0 z-50 bg-white">
+    <nav className="fixed inset-x-0 top-0 z-50 bg-base-100">
       <div className="bg-black h-8 flex justify-center items-center">
         <p className="text-white">Order 10$+ free delivery </p>
       </div>
       <div className="mb-2 w-full shadow-sm">
         <div className="navbar flex-wrap gap-2 px-3 sm:px-4 lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
           <div className="navbar-start min-w-0 flex-1 lg:col-start-1 lg:row-start-1 lg:justify-self-start">
-            <button
-              onClick={() => onScrollClick("food-hub")}
+            <Link
+              to="/"
               className="btn btn-ghost max-w-full px-2 text-lg font-bold sm:text-2xl"
             >
               FOOD HUB
-            </button>
+            </Link>
           </div>
 
           <div className="navbar-center order-3 flex w-full justify-center overflow-x-auto lg:col-start-2 lg:row-start-1 lg:w-auto">
             <ul className="menu menu-horizontal min-w-full w-max justify-center flex-nowrap px-0 font-bold text-base sm:text-lg lg:min-w-0 lg:text-xl">
               <li>
-                <button onClick={() => onScrollClick("khmer-cuisine")}>
-                  Khmer Cuisine
-                </button>
+                <Link to="/khmer-cuisine">Khmer Cuisine</Link>
               </li>
               <li>
-                <button onClick={() => onScrollClick("western-food")}>
-                  Western Food
-                </button>
+                <Link to="/western-food">Western Foods</Link>
               </li>
 
               <li>
-                <button onClick={() => onScrollClick("dessert")}>
-                  Dessert
-                </button>
+                <Link to="/drinks">Drinks</Link>
               </li>
 
               <li>
-                <button onClick={() => onScrollClick("drinks")}>Drinks</button>
+                <Link to="/desserts">Desserts</Link>
               </li>
             </ul>
           </div>
@@ -78,7 +84,10 @@ function Header({ onScrollClick, cartCount, cartTotal }) {
                     Subtotal: ${cartTotal.toFixed(2)}
                   </span>
                   <div className="card-actions">
-                    <button className="btn btn-primary btn-block">
+                    <button
+                      className="btn btn-primary btn-block"
+                      onClick={() => setIsCartOpen(true)}
+                    >
                       View cart
                     </button>
                   </div>
@@ -118,9 +127,24 @@ function Header({ onScrollClick, cartCount, cartTotal }) {
               placeholder="Search"
               className="input hidden w-40 sm:block lg:w-56"
             />
+
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              onClick={toggleTheme}
+            >
+              {theme === "light" ? "Dark" : "Light"}
+            </button>
           </div>
         </div>
       </div>
+      <ViewCart
+        isOpen={isCartOpen}
+        items={cartItems}
+        total={cartTotal}
+        onClose={() => setIsCartOpen(false)}
+        onUpdateCart={onUpdateCart}
+      />
     </nav>
   );
 }
